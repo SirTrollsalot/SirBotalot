@@ -1,0 +1,37 @@
+{
+  "name": "sirbotalotv3",
+  "version": "3.0.0",
+  "description": "The third installment of the Discord bot Sir Botalot!",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sedlak477/Sir-Botalot-v3.git"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "sir",
+    "botalot",
+    "v3"
+  ],
+  "author": "sedlak477",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/sedlak477/Sir-Botalot-v3/issues"
+  },
+  "homepage": "https://github.com/sedlak477/Sir-Botalot-v3#readme",
+  "devDependencies": {
+    "@types/nconf": "0.0.37",
+    "@types/node": "^10.1.2",
+    "@types/winston": "^2.3.9",
+    "typescript": "^2.8.3"
+  },
+  "dependencies": {
+    "discord.js": "^11.3.2",
+    "nconf": "^0.10.0",
+    "winston": "^2.4.2"
+  }
+}
