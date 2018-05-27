@@ -1,10 +1,6 @@
-import { Command } from "../DiscordBot";
+import { Handler, HandlerCallback } from "../command/Handler";
 
-export class DiscordPlayer {
+export class DiscordPlayer implements Handler {
 
-
-    handleCommands(command: Command): void {
-
-    }
-
+    handler: HandlerCallback;
 }
