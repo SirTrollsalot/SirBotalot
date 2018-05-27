@@ -7,3 +7,11 @@ export function getDiscordBotLogger(): LoggerInstance {
         ]
     });
 }
+
+export function getMainLogger(): LoggerInstance {
+    return new Logger({
+        transports: [
+            new transports.Console()
+        ]
+    });
+}

@@ -21,4 +21,4 @@ run:
   script:
   - npm install
   - ./node_modules/typescript/bin/tsc -p tsconfig.json
-  - node ./dist/index.js --discordBot:commandPrefix=§
+  - node ./dist/index.js --discordBot:commandPrefix=§ --test

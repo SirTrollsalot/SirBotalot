@@ -12,7 +12,7 @@ export interface Command {
 export class DiscordBot {
 
     private client: Client;
-    private commnadHandler: Map<string, Handler[]> = new Map<string, Handler[]>();
+    private handlers: Handler[] = [];
     private logger = getDiscordBotLogger();
 
     constructor(private config: { token: string, commandPrefix: string, clientOptions?: ClientOptions }) {
@@ -28,15 +28,8 @@ export class DiscordBot {
         return this.client.destroy();
     }
 
-    use(command: string | string[], handler: Handler): void {
-        if (typeof(command) === "string") command = [command];
-        command.forEach(cmd => {
-            if (!this.commnadHandler.has(cmd))
-                this.commnadHandler.set(cmd, []);
-            let handlers = this.commnadHandler.get(cmd);
-            if (handlers)
-                handlers.push(handler);
-        });
+    use(handler: Handler): void {
+        this.handlers.push(handler);
     }
 
     private _handleMessage(message: Message): void {
@@ -44,31 +37,26 @@ export class DiscordBot {
             let tokens = message.cleanContent.substr(this.config.commandPrefix.length).split(' ').filter(v => v);  // Filter out empty strings
             if (tokens.length > 0) {
                 let command = tokens[0];
-                let handler = this.commnadHandler.get(command);
-                if (handler) {
-                    handler = handler.slice(0);
-                    // Trying to model something like the express middleware model
-                    let next = () => {
-                        if (handler) {
-                            let nextHandler = handler.shift();
-                            if (nextHandler) {
-                                try {
-                                    nextHandler({
-                                        name: command,
-                                        args: tokens.splice(1),
-                                        message: message
-                                    }, next);
-                                } catch (e) {
-                                    this.logger.warn(`Command handler for command '${command}' encountered an exception`, e);
-                                }
+                let handler = this.handlers.slice(0);
+                // Trying to model something like the express middleware model
+                let next = () => {
+                    if (handler) {
+                        let nextHandler = handler.shift();
+                        if (nextHandler) {
+                            try {
+                                nextHandler({
+                                    name: command,
+                                    args: tokens.splice(1),
+                                    message: message
+                                }, next);
+                            } catch (e) {
+                                this.logger.warn(`Command handler for command '${command}' encountered an exception`, e);
                             }
                         }
-                    };
-                    next();
-                } else {
-                    this.logger.info(`Command '${command}' issued by '${message.author.username}'(${message.author.id}) not found`);
-                }
-            }
+                    }
+                };
+                next();
+            } // Else empty command, e.g. '!'
         }
     }
 }
