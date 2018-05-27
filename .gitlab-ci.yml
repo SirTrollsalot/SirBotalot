@@ -21,4 +21,4 @@ run:
   script:
   - npm install
   - ./node_modules/typescript/bin/tsc -p tsconfig.json
-  - node ./dist/index.js
+  - node ./dist/index.js --commandPrefix=§
