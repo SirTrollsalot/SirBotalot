@@ -20,5 +20,5 @@ cache:
 run:
   script:
   - npm install
-  - tsc
+  - ./node_modules/typescript/bin/tsc -p tsconfig.json
   - node ./dist/index.js
