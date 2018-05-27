@@ -16,3 +16,8 @@ image: node:latest
 cache:
   paths:
   - node_modules/
+
+run:
+  script:
+  - npm install
+  - node ./dist/index.js
