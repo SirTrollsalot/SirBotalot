@@ -15,3 +15,11 @@ export function getMainLogger(): LoggerInstance {
         ]
     });
 }
+
+export function getDiscordAUILogger(): LoggerInstance {
+    return new Logger({
+        transports: [
+            new transports.Console()
+        ]
+    });
+}

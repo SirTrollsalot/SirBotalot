@@ -12,6 +12,7 @@ export class DiscordBot extends EventEmitter {
         super();
         this.client = new Client(config.clientOptions);
         this.client.on('message', this._handleMessage.bind(this));
+        this.client.on("error", err => this.logger.error("Discord connection error", err));
     }
 
     login(): Promise<void> {
@@ -59,7 +60,7 @@ export class DiscordBot extends EventEmitter {
                     reply: msg => message.channel.send(msg)
                 };
                 this.emit("command", command, response);
-            } // Else empty command, e.g. '!'
+            } // Else empty command, e.g.: '!'
         }
     }
 }

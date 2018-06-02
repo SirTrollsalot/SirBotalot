@@ -2,6 +2,7 @@ import * as nconf from 'nconf';
 import { DiscordBot } from './discordbot/DiscordBot';
 import { getMainLogger } from './logging/logger';
 import { CommandRouter } from './discordbot/command/CommandRouter';
+import { DiscordAUI } from './discordbot/aui/DiscordAUI';
 
 const version = require("../package.json").version;
 
@@ -15,7 +16,11 @@ let router = new CommandRouter();
 router.use("help", (cmd, resp) => {
     resp.reply(`Sir Botalot v${version}`);
 });
+
+let discordAui = new DiscordAUI({});
+
 discordBot.on("command", router.handler);
+discordBot.on("command", discordAui.handler);
 
 discordBot.login().then(() => {
     logger.info(`Logged in as ${discordBot.username}`);
