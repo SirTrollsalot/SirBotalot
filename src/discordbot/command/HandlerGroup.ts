@@ -1,11 +1,13 @@
-import { Handler, HandlerCallback } from "./Handler";
+import { Handler } from "./Handler";
 
 export class HandlerGroup implements Handler {
-    private handlers: HandlerCallback[] = [];
+    private handlers: Handler[] = [];
 
-    add(handler: HandlerCallback): void {
+    add(handler: Handler): void {
         this.handlers.push(handler);
     }
 
-    handler: HandlerCallback = (command, response) => this.handlers.forEach(handler => handler(command, response));
+    handle(command, response) {
+        this.handlers.forEach(handler => handler.handle(command, response));
+    }
 }

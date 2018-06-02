@@ -1,15 +1,15 @@
-import { Handler, HandlerCallback } from "./Handler";
+import { Handler } from "./Handler";
 
 export class CommandRouter implements Handler {
 
-    private handlers: Map<string, HandlerCallback> = new Map<string, HandlerCallback>();
+    private handlers: Map<string, Handler> = new Map<string, Handler>();
 
-    use(name: string, handler: HandlerCallback): void {
+    use(name: string, handler: Handler): void {
         this.handlers.set(name, handler);
     }
 
-    handler: HandlerCallback = (command, response) => {
+    handle(command, response) {
         let hander = this.handlers.get(command.name);
-        if (hander) hander(command, response);
+        if (hander) hander.handle(command, response);
     }
 }

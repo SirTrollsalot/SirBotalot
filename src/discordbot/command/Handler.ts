@@ -10,8 +10,8 @@ export interface Response {
     reply(message: string): void;
 }
 
-export type HandlerCallback = (command: Command, response: Response) => void;
+export type HandleCallback = (command: Command, response: Response) => void;
 
 export interface Handler {
-    handler: HandlerCallback;
+    handle: HandleCallback;
 }

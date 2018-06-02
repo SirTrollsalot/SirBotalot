@@ -1,7 +1,7 @@
 import { Client, ClientOptions, Message } from 'discord.js';
 import { getDiscordBotLogger } from '../logging/logger';
 import { EventEmitter } from 'events';
-import { Command, Response } from './command/Handler';
+import { Command, Response, Handler } from './command/Handler';
 
 export class DiscordBot extends EventEmitter {
 

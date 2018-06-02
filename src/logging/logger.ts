@@ -1,4 +1,5 @@
 import { Logger, LoggerStatic, transports, LoggerInstance } from 'winston';
+import { Guild } from 'discord.js';
 
 export function getDiscordBotLogger(): LoggerInstance {
     return new Logger({
@@ -17,6 +18,14 @@ export function getMainLogger(): LoggerInstance {
 }
 
 export function getDiscordAUILogger(): LoggerInstance {
+    return new Logger({
+        transports: [
+            new transports.Console()
+        ]
+    });
+}
+
+export function getDiscordGuildPlayerLogger(guild: Guild): LoggerInstance {
     return new Logger({
         transports: [
             new transports.Console()
