@@ -15,3 +15,7 @@ export type HandleCallback = (command: Command, response: Response) => void;
 export interface Handler {
     handle: HandleCallback;
 }
+
+export class Handler implements Handler {
+    constructor(public handle: HandleCallback) {}
+}
