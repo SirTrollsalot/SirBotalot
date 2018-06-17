@@ -5,7 +5,6 @@ import { CommandRouter } from './discordbot/command/CommandRouter';
 import { DiscordAUI } from './discordbot/aui/DiscordAUI';
 import { DiscordPlayer } from './discordbot/player/DiscordPlayer';
 import * as AsciiTable from "ascii-table";
-import { Handler } from './discordbot/command/Handler';
 
 const version = require("../package.json").version;
 
