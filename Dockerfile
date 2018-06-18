@@ -2,7 +2,8 @@ FROM node:8.11
 
 COPY . .
 
-RUN apt-get install libav-tools && \
+RUN apt-get update && \
+    apt-get install ffmpeg && \
     npm install && \
     npm install uws hammerandchisel/erlpack sodium node-opus && \
     npm install -g typescript && \
