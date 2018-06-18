@@ -33,7 +33,6 @@
   "dependencies": {
     "ascii-table": "0.0.9",
     "discord.js": "^11.3.2",
-    "ffmpeg-binaries": "^3.2.2-3",
     "hh-mm-ss": "^1.2.0",
     "nconf": "^0.10.0",
     "opusscript": "0.0.6",
