@@ -11,6 +11,6 @@ RUN npm install && \
     tsc
 
 ENV NODE_ENV production
-ENV PATH ${APP_DIR}/node_modules/ffmpeg-binaries/bin/:${PATH}
+ENV PATH "$PATH:$APP_DIR/node_modules/ffmpeg-binaries/bin"
 
 CMD ["/bin/node", "./dist/index.js"]
