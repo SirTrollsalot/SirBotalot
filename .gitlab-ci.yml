@@ -10,6 +10,7 @@ stages:
 variables:
   TEST_IMAGE: registry.gitlab.com/sedlak477/sirbotalot:$CI_COMMIT_REF_NAME
   RELEASE_IMAGE: registry.gitlab.com/sedlak477/sirbotalot:latest
+  DOCKER_DRIVER: overlay2
 
 before_script:
   - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
