@@ -2,7 +2,7 @@ FROM node:8.11
 
 COPY . .
 
-RUN apt-get install ffmpeg && \
+RUN aptitude install ffmpeg && \
     npm install && \
     npm install uws hammerandchisel/erlpack sodium node-opus && \
     npm install -g typescript && \
