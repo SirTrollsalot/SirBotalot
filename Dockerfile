@@ -7,7 +7,7 @@ RUN npm install && \
     npm install -g typescript && \
     tsc
 
-ENV PATH="${PATH}:node_modules/ffmpeg-binaries/bin"
+ENV PATH="${PATH}:./node_modules/ffmpeg-binaries/bin"
 ENV NODE_ENV production
 
 CMD ["/bin/node", "dist/index.js"]
