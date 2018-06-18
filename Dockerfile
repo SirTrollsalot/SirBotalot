@@ -13,4 +13,4 @@ RUN tsc
 
 ENV NODE_ENV production
 
-CMD ["/bin/node", "./dist/index.js"]
+CMD ["node", "dist/index.js"]
