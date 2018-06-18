@@ -1,8 +1,8 @@
-FROM node:8.11.2
+FROM node:8-alpine
 
 COPY . .
 
-RUN apk add ffmpeg && \
+RUN apk add --update ffmpeg && \
     npm install && \
     npm install uws hammerandchisel/erlpack sodium node-opus && \
     npm install -g typescript && \
