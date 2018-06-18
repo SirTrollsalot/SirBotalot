@@ -6,11 +6,11 @@ WORKDIR ${APP_DIR}
 COPY . .
 
 RUN npm install
-RUN npm install uws hammerandchisel/erlpack libsodium-wrappers node-opus
+RUN npm install uws hammerandchisel/erlpack libsodium-wrappers node-opus ffmpeg-binaries
 RUN npm install -g typescript
 RUN tsc
+RUN ln -s node_modules/ffmpeg-binaries/bin/ffmpeg /bin/ffmpeg
 
 ENV NODE_ENV production
-ENV PATH "$APP_DIR/node_modules/ffmpeg-binaries/bin"
 
 CMD ["/bin/node", "./dist/index.js"]
