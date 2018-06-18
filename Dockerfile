@@ -9,4 +9,4 @@ RUN npm install && \
 
 ENV NODE_ENV production
 
-ENTRYPOINT ["node" "dist/index.js"]
+CMD ["/bin/node", "dist/index.js"]
