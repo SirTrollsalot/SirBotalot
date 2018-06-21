@@ -32,3 +32,11 @@ export function getDiscordGuildPlayerLogger(guild: Guild): LoggerInstance {
         ]
     });
 }
+
+export function getDiscordGuildAUILogger(guild: Guild): LoggerInstance {
+    return new Logger({
+        transports: [
+            new transports.Console()
+        ]
+    });
+}

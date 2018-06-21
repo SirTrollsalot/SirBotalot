@@ -2,7 +2,7 @@ import * as nconf from 'nconf';
 import { DiscordBot } from './discordbot/DiscordBot';
 import { getMainLogger } from './logging/logger';
 import { CommandRouter } from './discordbot/command/CommandRouter';
-import { DiscordAUI } from './discordbot/aui/DiscordAUI';
+import { DiscordVUI } from './discordbot/vui/DiscordVUI';
 import { DiscordPlayer } from './discordbot/player/DiscordPlayer';
 import * as AsciiTable from "ascii-table";
 

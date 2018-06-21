@@ -57,7 +57,7 @@ class GuildPlayer implements Handler {
         router.use("skip", this.skip.bind(this));
         router.use("pause", this.pause.bind(this));
         router.use("resume", this.start.bind(this));
-        router.use("pl", cmd => this.printPlaylist(cmd.message.channel));
+        router.use("pl", cmd => this.printPlaylist(cmd.message.channel).catch(err => this.logger.warn("Error sending playlist", err)));
 
         this.handle = router.handle.bind(router);
     }
@@ -74,7 +74,9 @@ class GuildPlayer implements Handler {
     }
 
     printPlaylist(channel: TextChannel | DMChannel | GroupDMChannel): Promise<Message | Message[]> {
-        return channel.send(this.playlist.map(entry => entry.name).join("\n"), { split: true, code: true });
+        if (this.playlist)
+            return channel.send(this.playlist.map(entry => entry.name).join("\n"), { split: true, code: true });
+        return Promise.reject("No playlist found");
     }
 
     skip(): void {
