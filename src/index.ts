@@ -29,8 +29,8 @@ router.use("help", (cmd, resp) => {
 });
 discordBot.on("command", router.handle.bind(router));
 
-let discordAui = new DiscordAUI({});
-discordBot.on("command", discordAui.handle.bind(discordAui));
+// let discordAui = new DiscordAUI({});
+// discordBot.on("command", discordAui.handle.bind(discordAui));
 
 let discordPlayer = new DiscordPlayer(nconf.get("discordBot:discordPlayer"));
 discordBot.on("command", discordPlayer.handle.bind(discordPlayer));
