@@ -1,6 +1,6 @@
 import { VoiceConnection, VoiceReceiver, User } from "discord.js";
-import { Readable } from "stream";
-import * as Speaker from "speaker";
+import { Readable, PassThrough } from "stream";
+// import * as Speaker from "speaker";
 import { Mixer, Input } from "audio-mixer";
 import { getVoiceConnectionStreamLogger } from "../../logging/logger";
 import { LoggerInstance } from "winston";
@@ -22,12 +22,14 @@ export class VoiceConnectionStream {
     private inputs = new Map<User, Input>();
     private streams = new Map<User, Readable>();
 
-    private test_speaker = new Speaker({
-        channels: 2,
-        bitDepth: 16,
-        sampleRate: 44100,
-        signed: true
-    });
+    // private test_speaker = new Speaker({
+    //     channels: 2,
+    //     bitDepth: 16,
+    //     sampleRate: 44100,
+    //     signed: true
+    // });
+
+    private test_speaker = new PassThrough();
 
     constructor(private connection: VoiceConnection) {
         this.logger = getVoiceConnectionStreamLogger(this.connection.channel.guild);
