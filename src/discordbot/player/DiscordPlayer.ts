@@ -32,10 +32,7 @@ class GuildPlayer implements Handler {
         this.logger = getDiscordGuildPlayerLogger(guild);
 
         // Default to only stream audio
-        if (!options.ytdlOptions)
-            options.ytdlOptions = { filter: "audioonly" };
-        else if (!options.ytdlOptions.filter)
-            options.ytdlOptions.filter = "audioonly";
+        this.options = Object.assign({ ytdlOptions: { filter: "audioonly" } }, options);
         let router = new CommandRouter();
 
         router.use("play", (cmd, resp) => {
@@ -57,43 +54,60 @@ class GuildPlayer implements Handler {
         router.use("skip", this.skip.bind(this));
         router.use("pause", this.pause.bind(this));
         router.use("resume", this.start.bind(this));
-        router.use("pl", cmd => this.printPlaylist(cmd.message.channel).catch(err => this.logger.warn("Error sending playlist", err)));
+        router.use("pl", cmd => this.printPlaylist(cmd.message.channel).catch(err => this.logger.error("Error sending playlist", err)));
 
         this.handle = router.handle.bind(router);
     }
 
     leave(): void {
-        if (this.guild.voiceConnection)
+        if (this.guild.voiceConnection) {
+            this.logger.verbose("Leaving voice channel");
             this.guild.voiceConnection.disconnect();
+        }
     }
 
     join(channel: VoiceChannel): Promise<VoiceConnection> {
-        if (channel.guild.id === this.guild.id && !this.connected)
-            return channel.join();
-        return Promise.reject("Channel not in this players guild or already connected");
+        if (channel.guild.id === this.guild.id && !this.connected) {
+            this.logger.verbose(`Joining voice channel '${channel.id}'`);
+            return channel.join().catch(err => {
+                this.logger.error("Error joining voice channel", err);
+                throw err;
+            });
+        }
+        return Promise.reject(new Error("Channel not in this players guild or already connected"));
     }
 
     printPlaylist(channel: TextChannel | DMChannel | GroupDMChannel): Promise<Message | Message[]> {
-        if (this.playlist)
-            return channel.send(this.playlist.map(entry => entry.name).join("\n"), { split: true, code: true });
-        return Promise.reject("No playlist found");
+        if (this.playlist) {
+            this.logger.verbose(`Printing current playlist in channel ${channel.id}`);
+            return channel.send(this.playlist.map(entry => entry.name).join("\n"), { split: true, code: true }).catch(err => {
+                this.logger.error("Error printing playlist", err);
+                throw err;
+            });
+        }
+        return Promise.reject(new Error("No playlist found"));
     }
 
     skip(): void {
-        if (this.guild.voiceConnection && this.guild.voiceConnection.dispatcher)
+        if (this.guild.voiceConnection && this.guild.voiceConnection.dispatcher) {
+            this.logger.verbose("Skipping current song");
             this.guild.voiceConnection.dispatcher.end(SKIP);
+        }
     }
 
     stop(): void {
         if (this.guild.voiceConnection && this.guild.voiceConnection.dispatcher) {
+            this.logger.verbose("Clearing playlist and stopping playback");
             this.playlist = [];
             this.guild.voiceConnection.dispatcher.end(MANUAL_STOP);
         }
     }
 
     pause(): void {
-        if (this.guild.voiceConnection && this.guild.voiceConnection.dispatcher)
+        if (this.guild.voiceConnection && this.guild.voiceConnection.dispatcher) {
+            this.logger.verbose("Pausing playback");
             this.guild.voiceConnection.dispatcher.pause();
+        }
     }
 
     /**
@@ -103,16 +117,20 @@ class GuildPlayer implements Handler {
         if (this.connected) {
             // If there is a paused playback resume it
             if (this.guild.voiceConnection.dispatcher && this.guild.voiceConnection.dispatcher.paused) {
+                this.logger.verbose("Resuming playback");
                 this.guild.voiceConnection.dispatcher.resume();
             } else {
                 let item = this.playlist.shift();
                 if (item) {
+                    this.logger.verbose(`Start playing '${item.name}'`);
                     this.guild.voiceConnection.playStream(item.getStream(), this.options.discordPlaybackOptions).on("end", reason => {
+                        this.logger.debug(`'${item}' finished playback`);
                         // If player hasn't been stopped manually continue playing
                         if (reason !== MANUAL_STOP)
                             this.start();
                     });
                 } else {
+                    this.logger.debug("Playlist empty, leaving channel");
                     // If no more songs in the queue leave
                     this.leave();
                 }
@@ -126,6 +144,7 @@ class GuildPlayer implements Handler {
      * @param autoJoin If not null or undefined join the provided channel and start playback
      */
     enqueue(item: PlaylistItem, autoJoinChannel?: VoiceChannel): void {
+        this.logger.verbose(`Enquing playlist item '${item.name}'`);
         this.playlist.push(item);
         if (autoJoinChannel && !this.connected)
             this.join(autoJoinChannel).then(this.start.bind(this));
