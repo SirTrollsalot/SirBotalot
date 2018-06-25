@@ -30,7 +30,9 @@ class GuildVUI implements Handler {
                 }, err => this.logger.warn(`Error connection to voice channel ${cmd.message.member.voiceChannel.id}: ${err}`));
         });
         router.use("leave", cmd => {
-            
+            if (cmd.message.guild && cmd.message.guild.voiceConnection) {
+                cmd.message.guild.voiceConnection.disconnect();
+            }
         });
         this.handle = router.handle.bind(router);
     }
