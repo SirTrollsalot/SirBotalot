@@ -26,6 +26,9 @@ class GuildVUI implements Handler {
             if (cmd.message.member && cmd.message.member.voiceChannel && cmd.message.member.voiceChannel.guild.id === this.guild.id && !this.guild.voiceConnection)
                 cmd.message.member.voiceChannel.join().then(conn => {
                     this.stream = new VoiceConnectionStream(conn);
+                    conn.on("debug", this.logger.debug.bind(this.logger));
+                    conn.on("warn", this.logger.warn.bind(this.logger));
+                    conn.on("error", this.logger.error.bind(this.logger));
                     conn.once("disconnect", () => this.stream = undefined);
                 }, err => this.logger.warn(`Error connection to voice channel ${cmd.message.member.voiceChannel.id}: ${err}`));
         });

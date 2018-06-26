@@ -22,8 +22,8 @@ router.use("version", (cmd, resp) => resp.reply(`Sir Botalot v${version}`));
 router.use("help", (cmd, resp) => resp.reply("```\n" + generateHelpText(nconf.get("help")) + "\n```"));
 discordBot.on("command", router.handle.bind(router));
 
-// let discordAui = new DiscordVUI(nconf.get("discordBot:vui"));
-// discordBot.on("command", discordAui.handle.bind(discordAui));
+let discordAui = new DiscordVUI(nconf.get("discordBot:vui"));
+discordBot.on("command", discordAui.handle.bind(discordAui));
 
 let discordPlayer = new DiscordPlayer(nconf.get("discordBot:player"));
 discordBot.on("command", discordPlayer.handle.bind(discordPlayer));

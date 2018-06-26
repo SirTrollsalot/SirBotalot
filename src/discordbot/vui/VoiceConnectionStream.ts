@@ -1,83 +1,81 @@
 import { VoiceConnection, VoiceReceiver, User } from "discord.js";
-import { Readable, PassThrough } from "stream";
-// import * as Speaker from "speaker";
+import { Readable } from "stream";
+import * as Speaker from "speaker";
 import { Mixer, Input } from "audio-mixer";
 import { getVoiceConnectionStreamLogger } from "../../logging/logger";
 import { LoggerInstance } from "winston";
+import { FileWriter } from "wav";
 
-/*
- * This should probably (definitely) be implemented in C/C++
- */
+// ----- TEST -----
+
+let outFormat = {
+    channels: 2,
+    bitDepth: 16,
+    sampleRate: 48000
+};
+
+// Works with spoken input
+// let inFormat = {
+//     channels: 2,
+//     bitDepth: 16,
+//     sampleRate: 48000
+// };
+
+let inFormat = {
+    channels: 2,
+    bitDepth: 16,
+    sampleRate: 48000
+};
+
+// ----- END -----
+
 export class VoiceConnectionStream {
     
     private logger: LoggerInstance;
     private _receiver: VoiceReceiver;
 
-    private mixer = new Mixer({
-        channels: 2,
-        bitDepth: 16,
-        sampleRate: 44100
-    });
+    private mixer = new Mixer(outFormat);
 
     private inputs = new Map<User, Input>();
-    private streams = new Map<User, Readable>();
-
-    // private test_speaker = new Speaker({
-    //     channels: 2,
-    //     bitDepth: 16,
-    //     sampleRate: 44100,
-    //     signed: true
-    // });
-
-    private test_speaker = new PassThrough();
 
     constructor(private connection: VoiceConnection) {
         this.logger = getVoiceConnectionStreamLogger(this.connection.channel.guild);
-        this.mixer.pipe(this.test_speaker);
+        this.logger.debug(`Out format: sample rate: ${outFormat.sampleRate}, bit depth: ${outFormat.bitDepth}, channels: ${outFormat.channels}`);
+        this.logger.debug(`In format: sample rate: ${inFormat.sampleRate}, bit depth: ${inFormat.bitDepth}, channels: ${inFormat.channels}`);
+
+        let file = new FileWriter("test.wav", outFormat);
+
+        // this.mixer.pipe(this.test_speaker);
         connection.on("speaking", (user, speaking) => {
             if (speaking) {
-                this.logger.info(`${user.username} started speaking`);
+                this.logger.debug(`${user.username} started speaking`);
 
                 this.logger.silly("Creating mixer input");
-                let input = this.mixer.input({
-                    channels: 2,
-                    bitDepth: 32,
-                    sampleRate: 48000
-                });
+                let input = this.mixer.input(inFormat);
 
-                this.logger.silly("Creating user sream");
+                this.logger.silly("Creating user stream");
                 let stream = this.receiver.createPCMStream(user);
 
-                this.logger.silly("Save stream and input");
+                this.logger.silly("Save input");
                 this.inputs.set(user, input);
-                this.streams.set(user, stream);
 
                 this.logger.silly("Pipe user stream into mixer input");
-                stream.pipe(input);
+                stream.pipe(file, { end: false });
             } else {
-                this.logger.info(`${user.username} stopped speaking`);
+                this.logger.debug(`${user.username} stopped speaking`);
 
                 this.logger.silly("Getting input and user");
                 let input = this.inputs.get(user);
-                let stream = this.streams.get(user);
 
                 if (input) {
                     this.logger.silly("Remove input from mixer");
                     this.mixer.removeInput(input);
                 } else {
-                    this.logger.warn("Input wasn't found");
+                    this.logger.debug("Input wasn't found");
                 }
 
-                if (stream) {
-                    this.logger.silly("Destroying stream");
-                    stream.destroy();
-                } else {
-                    this.logger.warn("Stream wasn't found");
-                }
-
-                this.logger.silly("Deleting input and stream");
+                this.logger.silly("Deleting input");
                 this.inputs.delete(user);
-                this.streams.delete(user);
             }
         });
     }

@@ -66,3 +66,4 @@ config.json
 .vscode/
 ffmpeg.exe
 google_auth.json
+test.wav

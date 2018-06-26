@@ -13,7 +13,7 @@ export function setOptions(opts: LoggerOptions) {
 
 function getGuildLoggerOptions(label: string, guild: Guild): LoggerOptions {
     return {
-        level: "verbose",
+        level: "debug",
         transports: [
             new transports.Console({
                 timestamp: () => new Date().toLocaleString(),
@@ -25,7 +25,7 @@ function getGuildLoggerOptions(label: string, guild: Guild): LoggerOptions {
 
 function getLoggerOptions(label: string): LoggerOptions {
     return {
-        level: "verbose",
+        level: "debug",
         transports: [
             new transports.Console({
                 timestamp: () => new Date().toLocaleString(),
