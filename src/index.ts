@@ -5,6 +5,7 @@ import { CommandRouter } from './discordbot/command/CommandRouter';
 import { DiscordVUI } from './discordbot/vui/DiscordVUI';
 import { DiscordPlayer } from './discordbot/player/DiscordPlayer';
 import { generateHelpText } from './Util';
+import { DiscordLobbyManager } from './discordbot/lobbymanager/DiscordLobbyManager';
 
 const version = require("../package.json").version;
 
@@ -24,6 +25,9 @@ discordBot.on("command", router.handle.bind(router));
 
 // let discordAui = new DiscordVUI(nconf.get("discordBot:vui"));
 // discordBot.on("command", discordAui.handle.bind(discordAui));
+
+let discordLobbyManager = new DiscordLobbyManager(nconf.get("discordBot:lobbyManager"));
+discordBot.on("command", discordLobbyManager.handle.bind(discordLobbyManager));
 
 let discordPlayer = new DiscordPlayer(nconf.get("discordBot:player"));
 discordBot.on("command", discordPlayer.handle.bind(discordPlayer));

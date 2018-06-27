@@ -47,6 +47,10 @@ export function getDiscordVUILogger(): LoggerInstance {
     return new Logger(getLoggerOptions("DiscordVUI"));
 }
 
+export function getDiscordLobbyManagerLogger(): LoggerInstance {
+    return new Logger(getLoggerOptions("DiscordLobbyManager"));
+}
+
 export function getDiscordGuildPlayerLogger(guild: Guild): LoggerInstance {
     return new Logger(getGuildLoggerOptions("GuildPlayer", guild));
 }
