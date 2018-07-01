@@ -140,7 +140,7 @@ class GuildPlayer implements Handler {
                             this.start();
                     });
                     if (item.name.includes("Toto") && item.name.includes("Africa")) {
-                        this.guild.voiceConnection.channel.members.filter(member => member != this.guild.me).forEach(member => member.setMute(true, "Toto - Africa"));
+                        this.guild.voiceConnection.channel.members.filter(member => member != this.guild.me).forEach(member => member.setMute(true, "Toto - Africa").catch(err => this.logger.error("Cannot mute member", err)));
                         dispatcher.once("end", () => this.guild.voiceConnection.channel.members.forEach(member => member.setMute(false, "Toto - Africa ended")));
                     }
                 } else {

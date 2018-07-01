@@ -7,6 +7,14 @@ export type LoggerOptions = {
 
 let options: LoggerOptions = {};
 
+function serializeObject(o: object, indent: number = 0, depth: number = 3): string {
+    // Recursion stop
+    if (depth <= 0) return "<...>";
+    if (typeof(o) === "function") return "<function>";
+    if (typeof(o) !== "object" || !o) return o;
+    return Object.keys(o).reduce((acc, key) => acc + `\n${" ".repeat(indent)}${key}: ${serializeObject(o[key], indent + 4, depth - 1)}`, "") || "{}";
+}
+
 export function setOptions(opts: LoggerOptions) {
     options = opts;
 }
@@ -17,7 +25,7 @@ function getGuildLoggerOptions(label: string, guild: Guild): LoggerOptions {
         transports: [
             new transports.Console({
                 timestamp: () => new Date().toLocaleString(),
-                formatter: opts => `[${opts.timestamp()}|${options.colors ? config.colorize(opts.level, opts.level.toUpperCase()) : opts.level.toUpperCase()}|${label}(Guild-${guild.id})] ${opts.message} ${opts.meta && Object.keys(opts.meta).length ? "\n\t" + JSON.stringify(opts.meta) : ""}`
+                formatter: opts => `[${opts.timestamp()}|${options.colors ? config.colorize(opts.level, opts.level.toUpperCase()) : opts.level.toUpperCase()}|${label}(Guild-${guild.id})] ${opts.message} ${opts.meta && Object.keys(opts.meta).length ? serializeObject(opts.meta, 4) : ""}`
             })
         ]
     };
@@ -29,7 +37,7 @@ function getLoggerOptions(label: string): LoggerOptions {
         transports: [
             new transports.Console({
                 timestamp: () => new Date().toLocaleString(),
-                formatter: opts => `[${opts.timestamp()}|${options.colors ? config.colorize(opts.level, opts.level.toUpperCase()) : opts.level.toUpperCase()}|${label}] ${opts.message} ${opts.meta && Object.keys(opts.meta).length ? "\n\t" + JSON.stringify(opts.meta) : ""}`
+                formatter: opts => `[${opts.timestamp()}|${options.colors ? config.colorize(opts.level, opts.level.toUpperCase()) : opts.level.toUpperCase()}|${label}] ${opts.message} ${opts.meta && Object.keys(opts.meta).length ? serializeObject(opts.meta, 4) : ""}`
             })
         ]
     };
