@@ -20,8 +20,11 @@ interface PlaylistItem {
 
 type GuildPlayerOptions = {
     discordPlaybackOptions?: StreamOptions,
-    ytdlOptions?: ytdl.downloadOptions
+    ytdlOptions?: ytdl.downloadOptions,
+    muteOnAfrica?: boolean
 };
+
+export type DiscordPlayerOptions = GuildPlayerOptions;
 
 class GuildPlayer implements Handler {
 
@@ -38,10 +41,12 @@ class GuildPlayer implements Handler {
         router.use("play", (cmd, resp) => {
             if (cmd.args.length == 1 && (cmd.args[0].includes("youtube.com") || cmd.args[0].includes("youtu.be"))) {
                 ytdl.getInfo(cmd.args[0]).then(info => {
+                    let name = `${info.title} [${fromS(+info.length_seconds)}]`;
                     this.enqueue({
                         getStream: () => ytdl.downloadFromInfo(info, this.options.ytdlOptions),
-                        name: `${info.title} [${fromS(+info.length_seconds)}]`
+                        name: name
                     }, (cmd.message.member && cmd.message.member.voiceChannel) ? cmd.message.member && cmd.message.member.voiceChannel : undefined);
+                    resp.reply(`Added \`${name}\` to playlist`);
                 });
             } else
                 resp.reply("Invalid `<song>` argument!");
@@ -51,10 +56,15 @@ class GuildPlayer implements Handler {
             this.stop();
             this.leave();
         });
+
         router.use("skip", this.skip.bind(this));
         router.use("pause", this.pause.bind(this));
         router.use("resume", this.start.bind(this));
-        router.use("pl", cmd => this.printPlaylist(cmd.message.channel).catch(err => this.logger.error("Error sending playlist", err)));
+
+        router.use("pl", (cmd, resp) => this.printPlaylist(cmd.message.channel).catch(err => {
+            this.logger.error("Error sending playlist", err);
+            resp.reply(`\`Error: ${err.message}\``);
+        }));
 
         this.handle = router.handle.bind(router);
     }
@@ -78,14 +88,14 @@ class GuildPlayer implements Handler {
     }
 
     printPlaylist(channel: TextChannel | DMChannel | GroupDMChannel): Promise<Message | Message[]> {
-        if (this.playlist) {
+        if (this.playlist && this.playlist.length) {
             this.logger.verbose(`Printing current playlist in channel ${channel.id}`);
             return channel.send(this.playlist.map(entry => entry.name).join("\n"), { split: true, code: true }).catch(err => {
                 this.logger.error("Error printing playlist", err);
                 throw err;
             });
         }
-        return Promise.reject(new Error("No playlist found"));
+        return Promise.reject(new Error(this.playlist ? "Playlist empty" : "No playlist found"));
     }
 
     skip(): void {
@@ -123,12 +133,16 @@ class GuildPlayer implements Handler {
                 let item = this.playlist.shift();
                 if (item) {
                     this.logger.verbose(`Start playing '${item.name}'`);
-                    this.guild.voiceConnection.playStream(item.getStream(), this.options.discordPlaybackOptions).on("end", reason => {
+                    let dispatcher = this.guild.voiceConnection.playStream(item.getStream(), this.options.discordPlaybackOptions).on("end", reason => {
                         this.logger.debug(`'${item}' finished playback`);
                         // If player hasn't been stopped manually continue playing
                         if (reason !== MANUAL_STOP)
                             this.start();
                     });
+                    if (item.name.includes("Toto") && item.name.includes("Africa")) {
+                        this.guild.voiceConnection.channel.members.forEach(member => member.setMute(true, "Toto - Africa"));
+                        dispatcher.once("end", () => this.guild.voiceConnection.channel.members.forEach(member => member.setMute(false, "Toto - Africa ended")));
+                    }
                 } else {
                     this.logger.debug("Playlist empty, leaving channel");
                     // If no more songs in the queue leave
@@ -141,13 +155,14 @@ class GuildPlayer implements Handler {
     /**
      * Add an item to the playlist
      * @param item The item to be added
-     * @param autoJoin If not null or undefined join the provided channel and start playback
+     * @param autoJoinChannel If not null or undefined join the provided channel and start playback
+     * @returns If autoJoinChannel is specified a Promise for when the client has established a connection with the channel
      */
-    enqueue(item: PlaylistItem, autoJoinChannel?: VoiceChannel): void {
+    enqueue(item: PlaylistItem, autoJoinChannel?: VoiceChannel): Promise<VoiceConnection> | void {
         this.logger.verbose(`Enquing playlist item '${item.name}'`);
         this.playlist.push(item);
         if (autoJoinChannel && !this.connected)
-            this.join(autoJoinChannel).then(this.start.bind(this));
+            return this.join(autoJoinChannel).then(this.start.bind(this));
     }
 
     get connected(): boolean {
@@ -156,8 +171,6 @@ class GuildPlayer implements Handler {
 
     handle: HandleCallback;
 }
-
-export type DiscordPlayerOptions = GuildPlayerOptions;
 
 export class DiscordPlayer implements Handler {
 
