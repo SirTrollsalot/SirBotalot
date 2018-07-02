@@ -16,7 +16,6 @@ export type GuilddVUIOptions = {
 class GuildVUI implements Handler {
 
     private logger: LoggerInstance;
-    private stream?: VoiceConnectionStream;
 
     constructor(private guild: Guild, private options: GuilddVUIOptions = {}) {
         this.logger = getDiscordGuildVUILogger(guild);
@@ -25,12 +24,14 @@ class GuildVUI implements Handler {
         router.use("join", cmd => {
             if (cmd.message.member && cmd.message.member.voiceChannel && cmd.message.member.voiceChannel.guild.id === this.guild.id && !this.guild.voiceConnection)
                 cmd.message.member.voiceChannel.join().then(conn => {
-                    this.stream = new VoiceConnectionStream(conn);
-                    conn.once("disconnect", () => this.stream = undefined);
-                }, err => this.logger.warn(`Error connection to voice channel ${cmd.message.member.voiceChannel.id}: ${err}`));
+                    new VoiceConnectionStream(conn).pipe(null);
+                }, err => this.logger.error(`Error connecting to voice channel ${cmd.message.member.voiceChannel.id}: ${err}`));
         });
         router.use("leave", cmd => {
-            
+            if (this.guild.voiceConnection) {
+                this.logger.verbose("Leaving voice channel");
+                this.guild.voiceConnection.disconnect();
+            }
         });
         this.handle = router.handle.bind(router);
     }
