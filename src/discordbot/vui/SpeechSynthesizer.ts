@@ -1,7 +1,6 @@
 import { TextToSpeechClient } from "@google-cloud/text-to-speech";
 import { Readable } from "stream";
 import { ReadableStreamBuffer } from "stream-buffers";
-import { writeFile } from "fs";
 
 export type SpeechSynthesizerOptions = {
     defaultLanguage?: string,

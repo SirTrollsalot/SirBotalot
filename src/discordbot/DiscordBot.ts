@@ -74,7 +74,7 @@ export class DiscordBot extends EventEmitter {
             this.logger.verbose("Received command");
             let tokens = message.cleanContent.substr(this.options.commandPrefix.length).split(' ').filter(v => v);  // Filter out empty strings
             if (tokens.length > 0) {
-                this.logger.verbose(`Parsed command ${tokens[0]} with ${tokens.length - 1} arguments`);
+                this.logger.verbose(`Parsed command '${tokens[0]}' from '${message.author.username}' with ${tokens.length - 1} arguments`);
                 let command: Command = {
                     name: tokens[0],
                     args: tokens.slice(1),
