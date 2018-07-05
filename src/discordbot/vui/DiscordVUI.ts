@@ -7,7 +7,6 @@ import { LoggerInstance } from "winston";
 import { VoiceConnectionStream } from "./VoiceConnectionStream";
 import { Detector, Models } from "snowboy";
 import { PCMResampler } from "./PCMResampler";
-import { FileWriter } from "wav"
 
 export type DiscordVUIOptions = {
     guildVUIOptions: GuilddVUIOptions

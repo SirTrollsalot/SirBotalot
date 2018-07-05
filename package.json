@@ -27,7 +27,6 @@
   "devDependencies": {
     "@types/nconf": "0.0.37",
     "@types/node": "^10.1.2",
-    "@types/snowboy": "^1.2.0",
     "@types/stream-buffers": "^3.0.2",
     "@types/winston": "^2.3.9",
     "typescript": "^2.8.3"
