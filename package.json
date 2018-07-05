@@ -27,6 +27,7 @@
   "devDependencies": {
     "@types/nconf": "0.0.37",
     "@types/node": "^10.1.2",
+    "@types/snowboy": "^1.2.0",
     "@types/stream-buffers": "^3.0.2",
     "@types/winston": "^2.3.9",
     "typescript": "^2.8.3"
@@ -39,6 +40,7 @@
     "hh-mm-ss": "^1.2.0",
     "nconf": "^0.10.0",
     "node-opus": "^0.3.0",
+    "snowboy": "^1.3.1",
     "stream-buffers": "^3.0.2",
     "winston": "^2.4.2",
     "ytdl-core": "^0.20.4"

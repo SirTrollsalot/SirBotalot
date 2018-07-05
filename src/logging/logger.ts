@@ -5,6 +5,7 @@ export type LoggerOptions = {
     colors?: boolean
 };
 
+let loggingLevel = "warn";
 let options: LoggerOptions = {};
 
 export function setOptions(opts: LoggerOptions) {
@@ -13,7 +14,7 @@ export function setOptions(opts: LoggerOptions) {
 
 function getGuildLoggerOptions(label: string, guild: Guild): LoggerOptions {
     return {
-        level: "debug",
+        level: loggingLevel,
         transports: [
             new transports.Console({
                 timestamp: () => new Date().toLocaleString(),
@@ -25,7 +26,7 @@ function getGuildLoggerOptions(label: string, guild: Guild): LoggerOptions {
 
 function getLoggerOptions(label: string): LoggerOptions {
     return {
-        level: "debug",
+        level: loggingLevel,
         transports: [
             new transports.Console({
                 timestamp: () => new Date().toLocaleString(),

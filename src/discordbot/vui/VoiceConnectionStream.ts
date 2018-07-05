@@ -4,22 +4,12 @@ import { getVoiceConnectionStreamLogger } from "../../logging/logger";
 import { LoggerInstance } from "winston";
 import { Readable } from "stream";
 
-// ----- TEST -----
-
-let _outFormat = {
-    channels: 2,
-    bitDepth: 16,
-    sampleRate: 48000
-};
-
 // Works with spoken input but sometimes doesn't
 let inFormat = {
     channels: 2,
     bitDepth: 16,
     sampleRate: 48000
 };
-
-// ----- END -----
 
 export type VoiceConnectionStreamOptions = {
     outFormat?: MixerArguments
@@ -33,7 +23,7 @@ export class VoiceConnectionStream extends Mixer implements Readable {
     private userInputs = new Map<User, Input>();
 
     constructor(private connection: VoiceConnection, private options: VoiceConnectionStreamOptions = {}) {
-        super(options.outFormat || { channels: 2, sampleRate: 44100 });
+        super(options.outFormat || { channels: 2, sampleRate: 48000 });
         this.logger = getVoiceConnectionStreamLogger(this.connection.channel.guild);
 
         connection.on("speaking", (user, speaking) => {
@@ -71,6 +61,7 @@ export class VoiceConnectionStream extends Mixer implements Readable {
 
         connection.on("disconnect", () => {
             this.userInputs.forEach(input => input.destroy());
+            this.push(null);
             this.destroy();
         });
     }
