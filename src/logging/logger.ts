@@ -5,7 +5,7 @@ export type LoggerOptions = {
     colors?: boolean
 };
 
-let loggingLevel = "warn";
+let loggingLevel = "verbose";
 let options: LoggerOptions = {};
 
 export function setOptions(opts: LoggerOptions) {

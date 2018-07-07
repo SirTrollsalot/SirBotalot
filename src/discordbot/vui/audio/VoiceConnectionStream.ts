@@ -1,29 +1,37 @@
 import { VoiceConnection, VoiceReceiver, User } from "discord.js";
 import { Mixer, Input, MixerArguments } from "audio-mixer";
-import { getVoiceConnectionStreamLogger } from "../../logging/logger";
+import { getVoiceConnectionStreamLogger } from "../../../logging/logger";
 import { LoggerInstance } from "winston";
 import { Readable } from "stream";
+import { PCMFormat } from "./PCMFormat";
 
-// Works with spoken input but sometimes doesn't
-let inFormat = {
+export type VoiceConnectionStreamOptions = {};
+
+const IN_FORMAT = {
     channels: 2,
     bitDepth: 16,
     sampleRate: 48000
 };
-
-export type VoiceConnectionStreamOptions = {
-    outFormat?: MixerArguments
-};
-
+/**
+ * Streams {@link VoiceConnection} audio data as 16-bit signed-integer 48kHz stereo PCM stream
+ */
 export class VoiceConnectionStream extends Mixer implements Readable {
     
+    // Works with spoken input but sometimes doesn't
+    static FORMAT: PCMFormat = {
+        channels: 2,
+        bitDepth: 16,
+        encoding: "signed-integer",
+        sampleRate: 48000
+    };
+
     private logger: LoggerInstance;
     private _receiver: VoiceReceiver;
 
     private userInputs = new Map<User, Input>();
 
     constructor(private connection: VoiceConnection, private options: VoiceConnectionStreamOptions = {}) {
-        super(options.outFormat || { channels: 2, sampleRate: 48000 });
+        super(IN_FORMAT);
         this.logger = getVoiceConnectionStreamLogger(this.connection.channel.guild);
 
         connection.on("speaking", (user, speaking) => {
@@ -31,7 +39,7 @@ export class VoiceConnectionStream extends Mixer implements Readable {
                 this.logger.debug(`${user.username} started speaking`);
 
                 this.logger.silly("Creating mixer input");
-                let input = this.input(inFormat);
+                let input = this.input(IN_FORMAT);
 
                 this.logger.silly("Creating user stream");
                 let stream = this.receiver.createPCMStream(user);

@@ -4,9 +4,12 @@ import { getDiscordVUILogger, getDiscordGuildVUILogger } from "../../logging/log
 import { GuildCommandContext } from "../command/GuildCommandContext";
 import { Guild } from "discord.js";
 import { LoggerInstance } from "winston";
-import { VoiceConnectionStream } from "./VoiceConnectionStream";
+import { VoiceConnectionStream } from "./audio/VoiceConnectionStream";
 import { Detector, Models } from "snowboy";
-import { PCMResampler } from "./PCMResampler";
+import { createResampler } from "./audio/PCMResampler";
+import * as chunker from "stream-chunker";
+import { PCMFormat } from "./audio/PCMFormat";
+import { createConnection } from "net";
 
 export type DiscordVUIOptions = {
     guildVUIOptions: GuilddVUIOptions
@@ -42,9 +45,13 @@ class GuildVUI implements Handler {
 
         this.detector = new Detector(Object.assign({ resource: "node_modules/snowboy/resources/common.res", models: models }, options.detection.detectorOptions || {}));
 
-        this.logger.verbose(`Created detector with sample rate: ${this.detector.sampleRate()}, bit rate: ${this.detector.bitsPerSample()}, channels: ${this.detector.numChannels()}`);
+        this.logger.verbose(`Created detector with sample rate: ${this.detector.sampleRate()}, bit depth: ${this.detector.bitsPerSample()}, channels: ${this.detector.numChannels()}`);
 
-        this.detector.on("hotword", (i, hotword) => this.logger.verbose(`Hotword ${i} '${hotword}' triggered`));
+        this.detector.on("hotword", (i, hotword) => {
+            this.logger.verbose(`Hotword '${hotword}' triggered`);
+            if (guild.voiceConnection)
+                guild.voiceConnection.playFile("res/reee.ogg");
+        });
         this.detector.on("error", err => this.logger.error("Hotword detection error", err));
 
         let router = new CommandRouter();
@@ -53,24 +60,12 @@ class GuildVUI implements Handler {
             if (cmd.message.member && cmd.message.member.voiceChannel && cmd.message.member.voiceChannel.guild.id === this.guild.id && !this.guild.voiceConnection) {
                 this.logger.verbose("Joining voice channel");
                 cmd.message.member.voiceChannel.join().then(conn => {
-                    let voice = new VoiceConnectionStream(conn)
-                    .on("error", err => this.logger.error("Voice Connection Stream error", err));
-                    PCMResampler({
-                        channels: 2,
+                    new VoiceConnectionStream(conn).pipe(createResampler(VoiceConnectionStream.FORMAT, {
+                        channels: 1,
                         bitDepth: 16,
                         encoding: "signed-integer",
-                        sampleRate: 48000
-                    }, {
-                        channels: this.detector.numChannels(),
-                        bitDepth: this.detector.bitsPerSample(),
-                        encoding: "signed-integer",
-                        sampleRate: this.detector.sampleRate()
-                    }, voice).pipe(process.stdout);
-                    // .pipe(new FileWriter("test.wav", {
-                    //     channels: this.detector.numChannels(),
-                    //     bitDepth: this.detector.bitsPerSample(),
-                    //     sampleRate: this.detector.sampleRate()
-                    // }));
+                        sampleRate: 16000
+                    })).pipe(this.detector);
                 }, err => this.logger.error(`Error connecting to voice channel ${cmd.message.member.voiceChannel.id}: ${err}`));
             }
                 
@@ -83,6 +78,15 @@ class GuildVUI implements Handler {
         });
 
         this.handle = router.handle.bind(router);
+    }
+
+    private get detectorFormat(): PCMFormat {
+        return {
+            channels: this.detector.numChannels(),
+            bitDepth: this.detector.bitsPerSample(),
+            encoding: "signed-integer",
+            sampleRate: this.detector.sampleRate()
+        };
     }
 
     handle: HandleCallback;

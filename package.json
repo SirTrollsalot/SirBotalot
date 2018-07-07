@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/sedlak477/Sir-Botalot-v3#readme",
   "devDependencies": {
+    "@types/duplexify": "^3.5.0",
     "@types/nconf": "0.0.37",
     "@types/node": "^10.1.2",
     "@types/stream-buffers": "^3.0.2",
@@ -36,6 +37,7 @@
     "ascii-table": "0.0.9",
     "audio-mixer": "^2.1.1",
     "discord.js": "^11.3.2",
+    "duplexify": "^3.6.0",
     "hh-mm-ss": "^1.2.0",
     "nconf": "^0.10.0",
     "node-opus": "^0.3.0",
