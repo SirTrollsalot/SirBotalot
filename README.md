@@ -1,2 +1,2 @@
-# Sir-Botalot-v3
-The third installment of the Discord bot Sir Botalot!
+# Sir Botalot
+A [Discord](https://discordapp.com/) Bot with voice command integration!
